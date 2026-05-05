@@ -1,0 +1,53 @@
+{
+  "name": "baraka-grill",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "clean": "node scripts/clean-next.mjs",
+    "dev": "next dev -p 3002",
+    "dev:fresh": "node scripts/clean-next.mjs && next dev -p 3002",
+    "build": "prisma generate && prisma migrate deploy && tsx scripts/ensure-admin.ts && next build",
+    "start": "next start -p 3002",
+    "lint": "next lint",
+    "db:generate": "prisma generate",
+    "prisma:generate": "prisma generate",
+    "db:push": "prisma db push",
+    "db:migrate": "prisma migrate deploy",
+    "db:seed": "prisma db seed",
+    "admin:ensure": "tsx scripts/ensure-admin.ts",
+    "admin:seed": "tsx scripts/ensure-admin.ts",
+    "images:seed": "node scripts/download-menu-images.mjs",
+    "postinstall": "prisma generate"
+  },
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
+  },
+  "dependencies": {
+    "@prisma/client": "5.22.0",
+    "bcryptjs": "^3.0.3",
+    "jose": "^6.2.3",
+    "lucide-react": "^1.14.0",
+    "next": "15.5.15",
+    "nodemailer": "^8.0.7",
+    "prisma": "5.22.0",
+    "react": "19.2.5",
+    "react-dom": "19.2.5",
+    "tsx": "^4.21.0",
+    "zod": "^4.4.2"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3",
+    "@netlify/plugin-nextjs": "^5.15.10",
+    "@types/bcryptjs": "^2.4.6",
+    "@types/node": "^20",
+    "@types/nodemailer": "^8.0.0",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "dotenv": "^17.4.2",
+    "eslint": "^9",
+    "eslint-config-next": "15.5.15",
+    "postcss": "^8",
+    "tailwindcss": "^3.4.1",
+    "typescript": "^5"
+  }
+}

@@ -1,0 +1,257 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+/// مطعم — كل البيانات التشغيلية مرتبطة بـ restaurantId (multi-tenant)
+model Restaurant {
+  id        String   @id @default(cuid())
+  slug      String   @unique
+  name      String
+  logoUrl   String?  @map("logo_url")
+  heroUrl   String?  @map("hero_url")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  users          User[]
+  categories     Category[]
+  products       Product[]
+  orders         Order[]
+  settings       RestaurantSettings?
+  offers         Offer[]
+  reviews        Review[]
+  notifications  AdminNotification[]
+
+  @@map("restaurants")
+}
+
+enum UserRole {
+  SUPER_ADMIN
+  RESTAURANT_ADMIN
+  STAFF
+}
+
+enum PaymentMethod {
+  COD
+  ONLINE
+}
+
+enum PaymentStatus {
+  UNPAID
+  PENDING
+  PAID
+  FAILED
+}
+
+enum OrderStatus {
+  PENDING_CONFIRMATION
+  CONFIRMED
+  PREPARING
+  READY
+  OUT_FOR_DELIVERY
+  DELIVERED
+  CANCELLED
+  PENDING_PAYMENT
+  PAID
+  PAYMENT_FAILED
+}
+
+enum OrderType {
+  DELIVERY
+  PICKUP
+}
+
+enum OrderTiming {
+  NOW
+  SCHEDULED
+}
+
+enum DeliveryBand {
+  UNDER_3_KM
+  THREE_TO_6_KM
+  OVER_6_KM
+}
+
+model User {
+  id             String      @id @default(cuid())
+  restaurantId   String?     @map("restaurant_id")
+  restaurant     Restaurant? @relation(fields: [restaurantId], references: [id], onDelete: SetNull)
+  name           String
+  email          String      @unique
+  passwordHash   String      @map("password_hash")
+  role           UserRole    @default(RESTAURANT_ADMIN)
+  createdAt      DateTime    @default(now()) @map("created_at")
+
+  @@map("users")
+}
+
+model Category {
+  id           String     @id @default(cuid())
+  restaurantId String     @map("restaurant_id")
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  name         String
+  slug         String
+  image        String?
+  sortOrder    Int        @default(0) @map("sort_order")
+  active       Boolean    @default(true)
+  products     Product[]
+
+  @@unique([restaurantId, slug])
+  @@map("categories")
+}
+
+model Product {
+  id           String     @id @default(cuid())
+  restaurantId String     @map("restaurant_id")
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  categoryId   String     @map("category_id")
+  category     Category   @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  name         String
+  slug         String
+  description  String         @db.Text
+  price        Decimal    @db.Decimal(10, 2)
+  image        String
+  available    Boolean    @default(true)
+  featured     Boolean    @default(false)
+  specialOffer Boolean    @default(false) @map("special_offer")
+  sortOrder    Int        @default(0) @map("sort_order")
+  createdAt    DateTime   @default(now()) @map("created_at")
+  updatedAt    DateTime   @updatedAt @map("updated_at")
+  orderItems   OrderItem[]
+
+  @@unique([restaurantId, slug])
+  @@map("products")
+}
+
+model Order {
+  id                   String        @id @default(cuid())
+  restaurantId         String        @map("restaurant_id")
+  restaurant           Restaurant    @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  orderNumber          String        @map("order_number")
+  customerName         String        @map("customer_name")
+  phone                String
+  whatsapp             String?
+  city                 String
+  area                 String
+  address              String @db.Text
+  mapsLink             String?       @map("maps_link")
+  orderType            OrderType     @map("order_type")
+  deliveryBand         DeliveryBand? @map("delivery_band")
+  orderTiming          OrderTiming   @map("order_timing")
+  scheduledAt          DateTime?     @map("scheduled_at")
+  deliveryFee          Decimal       @default(0) @map("delivery_fee") @db.Decimal(10, 2)
+  subtotal             Decimal       @db.Decimal(10, 2)
+  total                Decimal       @db.Decimal(10, 2)
+  paymentMethod        PaymentMethod @map("payment_method")
+  paymentStatus        PaymentStatus @default(UNPAID) @map("payment_status")
+  orderStatus          OrderStatus   @map("order_status")
+  notes                String? @db.Text
+  restaurantNotifiedAt DateTime?     @map("restaurant_notified_at")
+  createdAt            DateTime      @default(now()) @map("created_at")
+  updatedAt            DateTime      @updatedAt @map("updated_at")
+  items                OrderItem[]
+  payments             Payment[]
+
+  @@unique([restaurantId, orderNumber])
+  @@map("orders")
+}
+
+model OrderItem {
+  id          String   @id @default(cuid())
+  orderId     String   @map("order_id")
+  order       Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId   String?  @map("product_id")
+  product     Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
+  productName String   @map("product_name")
+  quantity    Int
+  unitPrice   Decimal  @map("unit_price") @db.Decimal(10, 2)
+  totalPrice  Decimal  @map("total_price") @db.Decimal(10, 2)
+
+  @@map("order_items")
+}
+
+model Payment {
+  id                String   @id @default(cuid())
+  orderId           String   @map("order_id")
+  order             Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  provider          String
+  providerPaymentId String?  @map("provider_payment_id")
+  amount            Decimal  @db.Decimal(10, 2)
+  currency          String   @default("MAD")
+  status            String
+  rawResponse       String?  @map("raw_response") @db.Text
+  createdAt         DateTime @default(now()) @map("created_at")
+
+  @@map("payments")
+}
+
+model RestaurantSettings {
+  id                     String     @id @default(cuid())
+  restaurantId           String     @unique @map("restaurant_id")
+  restaurant             Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  restaurantName         String     @map("restaurant_name")
+  phone                  String
+  whatsapp               String
+  email                  String
+  address                String @db.Text
+  openingHours           String     @map("opening_hours") @db.Text
+  deliveryRules          String     @map("delivery_rules") @db.Text
+  paypalEnabled          Boolean    @default(false) @map("paypal_enabled")
+  codEnabled             Boolean    @default(true) @map("cod_enabled")
+  onlinePaymentEnabled   Boolean    @default(false) @map("online_payment_enabled")
+  googleMapsEmbedUrl     String?    @map("google_maps_embed_url")
+  primaryColorHex        String?    @map("primary_color_hex")
+  accentColorHex         String?    @map("accent_color_hex")
+  facebookUrl            String?    @map("facebook_url")
+  instagramUrl           String?    @map("instagram_url")
+  tiktokUrl              String?    @map("tiktok_url")
+
+  @@map("restaurant_settings")
+}
+
+model Offer {
+  id                String     @id @default(cuid())
+  restaurantId      String     @map("restaurant_id")
+  restaurant        Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  title             String
+  description       String? @db.Text
+  discountPercent   Decimal    @default(10) @map("discount_percent") @db.Decimal(5, 2)
+  upsellProductSlug String?    @map("upsell_product_slug")
+  crossSellSlugs    Json?      @map("cross_sell_slugs")
+  active            Boolean    @default(true)
+  createdAt         DateTime   @default(now()) @map("created_at")
+  updatedAt         DateTime   @updatedAt @map("updated_at")
+
+  @@map("offers")
+}
+
+model Review {
+  id               String     @id @default(cuid())
+  restaurantId     String     @map("restaurant_id")
+  restaurant       Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  customerName     String     @map("customer_name")
+  customerPhotoUrl String?    @map("customer_photo_url")
+  rating           Int
+  comment          String @db.Text
+  visible          Boolean    @default(true)
+  createdAt        DateTime   @default(now()) @map("created_at")
+
+  @@map("reviews")
+}
+
+model AdminNotification {
+  id           String     @id @default(cuid())
+  restaurantId String     @map("restaurant_id")
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  title        String
+  body         String @db.Text
+  read         Boolean    @default(false)
+  orderId      String?    @map("order_id")
+  createdAt    DateTime   @default(now()) @map("created_at")
+
+  @@map("admin_notifications")
+}

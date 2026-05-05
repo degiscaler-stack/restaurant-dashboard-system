@@ -1,0 +1,15 @@
+# Netlify — Next.js (App Router) + Prisma
+# بعد الربط مع GitHub، كل push على الفرع الرئيسي يولّد بناء جديد تلقائياً.
+
+[build]
+  command = "npm run build"
+  # مخرج Next الافتراضي؛ @netlify/plugin-nextjs يعبّي منه .netlify/output بعد البناء
+  publish = ".next"
+
+[build.environment]
+  NODE_VERSION = "20"
+  # Netlify تنصّب أحيانًا بدون devDependencies؛ prisma وـ @netlify/plugin-nextjs ضروريين وقت البناء
+  NPM_CONFIG_PRODUCTION = "false"
+
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
