@@ -1,12 +1,23 @@
 import { NextResponse } from "next/server";
 import { UserRole } from "@prisma/client";
+import { ensureDatabaseUrl } from "@/lib/ensure-database-url";
 import { prisma } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
 
 export async function GET() {
+  ensureDatabaseUrl();
+
   const checks = {
-    database_url_configured: Boolean(process.env.DATABASE_URL?.trim()),
+    db_host_configured: Boolean(process.env.DB_HOST?.trim()),
+    db_port_configured: Boolean(process.env.DB_PORT?.trim()),
+    db_user_configured: Boolean(process.env.DB_USER?.trim()),
+    db_password_defined: Object.prototype.hasOwnProperty.call(
+      process.env,
+      "DB_PASSWORD",
+    ),
+    db_name_configured: Boolean(process.env.DB_NAME?.trim()),
+    database_url_resolved: Boolean(process.env.DATABASE_URL?.trim()),
     jwt_secret_configured: Boolean(process.env.JWT_SECRET?.trim()),
     database_connected: false,
     required_tables_exist: false,
@@ -14,14 +25,16 @@ export async function GET() {
   };
   const errors: string[] = [];
 
-  if (!checks.database_url_configured) {
-    errors.push("DATABASE_URL is not set");
+  if (!checks.database_url_resolved) {
+    errors.push(
+      "DATABASE_URL غير متوفرة بعد التجميع — عرّف DATABASE_URL أو DB_HOST و DB_USER و DB_NAME (اختياري: DB_PORT، DB_PASSWORD)",
+    );
   }
   if (!checks.jwt_secret_configured) {
     errors.push("JWT_SECRET is not set");
   }
 
-  if (checks.database_url_configured) {
+  if (checks.database_url_resolved) {
     try {
       await prisma.$queryRaw`SELECT 1`;
       checks.database_connected = true;
@@ -88,7 +101,12 @@ export async function GET() {
     }
   }
 
-  const ok = Object.values(checks).every(Boolean);
+  const ok =
+    checks.jwt_secret_configured &&
+    checks.database_url_resolved &&
+    checks.database_connected &&
+    checks.required_tables_exist &&
+    checks.admin_user_exists;
 
   return NextResponse.json(
     {

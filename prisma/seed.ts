@@ -1,3 +1,4 @@
+import "../src/lib/ensure-database-url";
 import { PrismaClient, UserRole } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import { PRODUCT_IMAGES } from "../src/lib/product-image-urls";

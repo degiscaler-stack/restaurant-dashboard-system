@@ -3,12 +3,13 @@
  * لا يُنشئ المستخدم إن وُجد بالفعل بنفس البريد (لا تحديث لكلمة المرور).
  *
  * المتغيرات المطلوبة:
- * - DATABASE_URL
+ * - اتصال القاعدة: إما DATABASE_URL أو (DB_HOST + DB_USER + DB_NAME [+ DB_PORT + DB_PASSWORD])
  * - ADMIN_SEED_EMAIL
  * - ADMIN_SEED_PASSWORD (bcrypt 12 rounds، مطابق لمسار تسجيل الدخول)
  *
  * التشغيل: npm run admin:ensure
  */
+import "../src/lib/ensure-database-url";
 import { PrismaClient, UserRole } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import { restaurantSlugFromSiteUrl } from "../src/lib/restaurant-slug-env";

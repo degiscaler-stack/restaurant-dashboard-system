@@ -4,7 +4,7 @@ generator client {
 
 datasource db {
   provider = "mysql"
-  // الاتصال فقط من بيئة التشغيل — لا تضع سلسلة اتصال هنا
+  // Prisma يقرأ env("DATABASE_URL")؛ تُبنى من DB_HOST/DB_USER/DB_NAME/... قبل أي أمر prisma أو استيراد العميل (ensure-database-url).
   url      = env("DATABASE_URL")
 }
 
