@@ -1,5 +1,4 @@
-﻿-- CreateTable
-CREATE TABLE `restaurants` (
+﻿CREATE TABLE `restaurants` (
     `id` VARCHAR(191) NOT NULL,
     `slug` VARCHAR(191) NOT NULL,
     `name` VARCHAR(191) NOT NULL,
@@ -12,7 +11,6 @@ CREATE TABLE `restaurants` (
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
--- CreateTable
 CREATE TABLE `users` (
     `id` VARCHAR(191) NOT NULL,
     `restaurant_id` VARCHAR(191) NULL,
@@ -26,7 +24,6 @@ CREATE TABLE `users` (
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
--- CreateTable
 CREATE TABLE `categories` (
     `id` VARCHAR(191) NOT NULL,
     `restaurant_id` VARCHAR(191) NOT NULL,
@@ -40,7 +37,6 @@ CREATE TABLE `categories` (
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
--- CreateTable
 CREATE TABLE `products` (
     `id` VARCHAR(191) NOT NULL,
     `restaurant_id` VARCHAR(191) NOT NULL,
@@ -61,7 +57,6 @@ CREATE TABLE `products` (
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
--- CreateTable
 CREATE TABLE `orders` (
     `id` VARCHAR(191) NOT NULL,
     `restaurant_id` VARCHAR(191) NOT NULL,
@@ -92,7 +87,6 @@ CREATE TABLE `orders` (
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
--- CreateTable
 CREATE TABLE `order_items` (
     `id` VARCHAR(191) NOT NULL,
     `order_id` VARCHAR(191) NOT NULL,
@@ -105,7 +99,6 @@ CREATE TABLE `order_items` (
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
--- CreateTable
 CREATE TABLE `payments` (
     `id` VARCHAR(191) NOT NULL,
     `order_id` VARCHAR(191) NOT NULL,
@@ -120,7 +113,6 @@ CREATE TABLE `payments` (
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
--- CreateTable
 CREATE TABLE `restaurant_settings` (
     `id` VARCHAR(191) NOT NULL,
     `restaurant_id` VARCHAR(191) NOT NULL,
@@ -145,7 +137,6 @@ CREATE TABLE `restaurant_settings` (
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
--- CreateTable
 CREATE TABLE `offers` (
     `id` VARCHAR(191) NOT NULL,
     `restaurant_id` VARCHAR(191) NOT NULL,
@@ -161,7 +152,6 @@ CREATE TABLE `offers` (
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
--- CreateTable
 CREATE TABLE `reviews` (
     `id` VARCHAR(191) NOT NULL,
     `restaurant_id` VARCHAR(191) NOT NULL,
@@ -175,7 +165,6 @@ CREATE TABLE `reviews` (
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
--- CreateTable
 CREATE TABLE `admin_notifications` (
     `id` VARCHAR(191) NOT NULL,
     `restaurant_id` VARCHAR(191) NOT NULL,
@@ -188,39 +177,26 @@ CREATE TABLE `admin_notifications` (
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
--- AddForeignKey
 ALTER TABLE `users` ADD CONSTRAINT `users_restaurant_id_fkey` FOREIGN KEY (`restaurant_id`) REFERENCES `restaurants`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
 
--- AddForeignKey
 ALTER TABLE `categories` ADD CONSTRAINT `categories_restaurant_id_fkey` FOREIGN KEY (`restaurant_id`) REFERENCES `restaurants`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
--- AddForeignKey
 ALTER TABLE `products` ADD CONSTRAINT `products_restaurant_id_fkey` FOREIGN KEY (`restaurant_id`) REFERENCES `restaurants`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
--- AddForeignKey
 ALTER TABLE `products` ADD CONSTRAINT `products_category_id_fkey` FOREIGN KEY (`category_id`) REFERENCES `categories`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
--- AddForeignKey
 ALTER TABLE `orders` ADD CONSTRAINT `orders_restaurant_id_fkey` FOREIGN KEY (`restaurant_id`) REFERENCES `restaurants`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
--- AddForeignKey
 ALTER TABLE `order_items` ADD CONSTRAINT `order_items_order_id_fkey` FOREIGN KEY (`order_id`) REFERENCES `orders`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
--- AddForeignKey
 ALTER TABLE `order_items` ADD CONSTRAINT `order_items_product_id_fkey` FOREIGN KEY (`product_id`) REFERENCES `products`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
 
--- AddForeignKey
 ALTER TABLE `payments` ADD CONSTRAINT `payments_order_id_fkey` FOREIGN KEY (`order_id`) REFERENCES `orders`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
--- AddForeignKey
 ALTER TABLE `restaurant_settings` ADD CONSTRAINT `restaurant_settings_restaurant_id_fkey` FOREIGN KEY (`restaurant_id`) REFERENCES `restaurants`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
--- AddForeignKey
 ALTER TABLE `offers` ADD CONSTRAINT `offers_restaurant_id_fkey` FOREIGN KEY (`restaurant_id`) REFERENCES `restaurants`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
--- AddForeignKey
 ALTER TABLE `reviews` ADD CONSTRAINT `reviews_restaurant_id_fkey` FOREIGN KEY (`restaurant_id`) REFERENCES `restaurants`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
--- AddForeignKey
 ALTER TABLE `admin_notifications` ADD CONSTRAINT `admin_notifications_restaurant_id_fkey` FOREIGN KEY (`restaurant_id`) REFERENCES `restaurants`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
-
