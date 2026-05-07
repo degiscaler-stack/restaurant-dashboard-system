@@ -1,4 +1,4 @@
-﻿CREATE TABLE `restaurants` (
+CREATE TABLE `restaurants` (
     `id` VARCHAR(191) NOT NULL,
     `slug` VARCHAR(191) NOT NULL,
     `name` VARCHAR(191) NOT NULL,
